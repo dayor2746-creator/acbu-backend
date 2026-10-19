@@ -298,6 +298,13 @@ const envSchema = z.object({
   WEBHOOK_SECRET: z.string().optional(),
   BILLS_WEBHOOK_SECRET: z.string().optional(),
 
+  // W10-SEC-017: HMAC-SHA256 secret for the authoritative /v1/mint/confirm endpoint.
+  // When a partner confirms that a basket-currency deposit has settled, they POST
+  // to /v1/mint/confirm signed with this secret. The server verifies the HMAC before
+  // triggering the on-chain mint, eliminating the deprecated ambiguity where an
+  // unverified webhook comment implied minting could be driven by fiat webhooks.
+  MINT_CONFIRMATION_SECRET: z.string().optional(),
+
   // Comma-separated / JSON config blobs. Parsed in the config object below, so
   // they stay strings here.
   CURRENCY_CENTRAL_BANK_URLS: z.string().optional(),
@@ -539,6 +546,14 @@ export const config = {
     webhookSecret: isPlaceholderKey(env.BILLS_WEBHOOK_SECRET)
       ? ""
       : env.BILLS_WEBHOOK_SECRET!.trim(),
+  },
+
+  // W10-SEC-017: HMAC-SHA256 secret for the authoritative /v1/mint/confirm endpoint.
+  // Must be set in production; optional in dev/test (endpoint rejects if not configured).
+  mint: {
+    confirmationSecret: isPlaceholderKey(env.MINT_CONFIRMATION_SECRET)
+      ? ""
+      : (env.MINT_CONFIRMATION_SECRET ?? "").trim(),
   },
   mtnMomo: {
     subscriptionKey: isPlaceholderKey(env.MTN_MOMO_SUBSCRIPTION_KEY)

@@ -340,8 +340,10 @@ export async function handlePaystackWebhook(
     });
 
     if (eventType === "charge.success" && data.status === "success") {
-      // Optional: create or update Transaction for deposit (mint flow)
-      // When reference links to a pending mint, update transaction
+      // W10-SEC-017: Audit log only. Minting is NOT triggered from this path.
+      // The authoritative mint-confirmation flow is POST /v1/mint/confirm with
+      // HMAC signature verification (MINT_CONFIRMATION_SECRET). Fiat webhook
+      // events are stored for reconciliation purposes only.
     }
 
     setFiatWebhookDeprecationHeaders(res);
@@ -430,9 +432,10 @@ export async function handleFlutterwaveWebhook(
     });
 
     if (eventType === "charge.completed" || data.status === "successful") {
-      // Optional: create or update Transaction for deposit (mint flow)
-      // When tx_ref links to a pending mint, update transaction and reserve history
-      // For now we only log and persist the webhook
+      // W10-SEC-017: Audit log only. Minting is NOT triggered from this path.
+      // The authoritative mint-confirmation flow is POST /v1/mint/confirm with
+      // HMAC signature verification (MINT_CONFIRMATION_SECRET). Fiat webhook
+      // events are stored for reconciliation purposes only.
     }
 
     setFiatWebhookDeprecationHeaders(res);
